@@ -1,0 +1,11 @@
+{
+	"name": "music-player",
+	"description": "Music Player",
+	"version": "0.0.1",
+	"private": true,
+	"dependencies": {
+		"coffee-script": "latest",
+		"logging": "latest",
+		"async": "latest"
+	}
+}

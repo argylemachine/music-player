@@ -1,0 +1,65 @@
+#!./node_modules/coffee-script/bin/coffee
+
+log	= require( "logging" ).from __filename
+fs	= require "fs"
+async	= require "async"
+util	= require "util"
+path	= require "path"
+
+config	= { }
+
+async.series [ ( cb ) ->
+		log "Parsing config.."
+		fs.readFile "config.json", ( err, data ) ->
+			if err
+				return cb err
+			try
+				config = JSON.parse data
+				return cb null
+			catch err
+				return cb err
+	, ( cb ) ->
+		log "Validating config.."
+		async.map [ "port", "directories", "echonest_api_key" ], ( req, cb ) ->
+			if not config[req]?
+				return cb "Field #{req} not found."
+			cb null
+		, ( err, res ) ->
+			if err
+				return cb err
+			cb null
+	, ( cb ) ->
+		log "Searching directories for files.."
+
+		async.map config['directories'], ( directory, cb ) ->
+			fs.readdir directory, ( err, items ) ->
+				if err
+					return cb err
+				async.map items, ( item, cb ) ->
+					item_path = path.join directory, item
+					fs.stat item_path, ( err, item_stat ) ->
+						if err
+							return cb err
+
+						if item_stat.isFile()
+							return cb null, item_path
+						
+						cb null, null
+
+				, ( err, files ) ->
+					if err
+						return cb err
+					_r = [ ]
+					_r.push file for file in files when file isnt null
+					return cb null, _r
+		, ( err, file_arrays ) ->
+			if err
+				return cb err
+			log "I have file arrays of #{util.inspect file_arrays}"
+			cb null
+	], ( err, res ) ->
+		if err
+			log "Unable to startup: #{err}"
+			process.exit 1
+		log "Startup complete!"
+
