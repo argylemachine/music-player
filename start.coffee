@@ -5,55 +5,9 @@ util	= require "util"
 find	= require "find"
 mp3info	= require "mp3info"
 cradle	= require "cradle"
-http	= require "http"
-url	= require "url"
 
 config	= { }
 runtime	= { }
-
-echonest_get = ( title, artist, cb ) ->
-	# This function queries echonest for the song identifer, then
-	# queries the song audio summary using the identifer.
-
-	_get = ( _url, args, cb ) ->
-		opts = url.parse _url, true
-		for key, val of args
-			opts.query[key] = val
-		delete opts['search']
-
-		req = http.get url.format( opts ) , ( res ) ->
-			_r = ""
-			res.setEncoding "utf8"
-			res.on "error", ( err ) ->
-				return cb err
-			
-			res.on "data", ( chunk ) ->
-				_r += chunk
-
-			res.on "end", ( ) ->
-				try
-					_o = JSON.parse _r
-					return cb null, _o.response
-				catch err
-					return cb err
-
-		req.on "error", ( err ) ->
-			return cb err
-
-	_get "http://developer.echonest.com/api/v4/song/search", { "api_key": config['echonest_api_key'], "artist": artist, "title": title }, ( err, res ) ->
-		if err
-			return cb err
-
-		if res.songs.length is 0
-			return cb "Song not found.."
-		
-		song = res.songs[0]
-		
-		_get "http://developer.echonest.com/api/v4/song/profile", { "api_key": config['echonest_api_key'], "id": song.id, "bucket": "audio_summary" }, ( err, res ) ->
-			if err
-				return cb err
-
-			return cb null, res.songs[0].audio_summary
 
 update_database = ( cb ) ->
 	log "Updating the database.."
