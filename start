@@ -51,7 +51,21 @@ update_database = ( cb ) ->
 		
 		async.each files, ( file, cb ) ->
 			# Check runtime['db'] for file['info']['id3']['artist'] and file['info']['id3']['title']...
-			cb null
+			runtime['db'].view 'songs/by-artist-and-title', { key: [ file['info']['id3']['artist'], file['info']['id3']['title'] ] }, ( err, docs ) ->
+				if err
+					return cb err
+	
+				# If that document doesn't exist, create it in the database..
+				if docs.length is 0
+					_doc = file['info']['id3']
+					_doc.type = "song"
+					runtime['db'].save _doc, ( err, res ) ->
+						if err
+							return cb err
+						log "Updated database ( #{_doc.title} by #{_doc.artist} )"
+						return cb null
+				else
+					return cb null
 		, ( err ) ->
 			if err
 				return cb err
@@ -98,6 +112,29 @@ async.series [ ( cb ) ->
 				return cb null
 
 			return cb null
+	, ( cb ) ->
+		log "Validating database views."
+
+		# Grab the design document..
+		runtime['db'].get "_design/songs", ( err, doc ) ->
+			if err and err.error is "not_found"
+				runtime['db'].save "_design/songs", {
+					"by-artist-and-title": {
+						"map": ( doc ) ->
+							if doc.type is "song" and doc.artist and doc.title
+								emit [ doc.artist, doc.title ], doc
+					}
+				}, ( err, res ) ->
+					if err
+						return cb err
+					
+					return cb null
+			
+			else if err
+				return cb err
+			else
+				return cb null
+
 	, ( cb ) ->
 		update_database cb
 
