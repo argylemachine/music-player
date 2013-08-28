@@ -39,6 +39,7 @@ update_database = ( cb ) ->
 			mp3info file, ( err, file_info ) ->
 				if err
 					return cb err
+
 				cb null, { "path": file, "info": file_info }
 		, ( err, file_infos ) ->
 			if err
@@ -49,6 +50,10 @@ update_database = ( cb ) ->
 		log "Verifying database records."
 		
 		async.each files, ( file, cb ) ->
+
+			# Sanity check to make sure the file_info contains at least a title and artist..
+			#TODO
+
 			# Check runtime['db'] for file['info']['id3']['artist'] and file['info']['id3']['title']...
 			runtime['db'].view 'songs/by-artist-and-title', { key: [ file['info']['id3']['artist'], file['info']['id3']['title'] ] }, ( err, docs ) ->
 				if err
@@ -184,6 +189,7 @@ async.series [ ( cb ) ->
 		log "Setting up new echonest connection handler.."
 
 		# Get rate_limit by doing a quick http query to echonest and parsing the header..
+		#TODO
 		# Note that the rate limit in the echonest library is the time ( in ms ) between requests, so we generate
 		# it by dividing a minute by the number of requests we're allowed to run in a minute ( with a buffer ).
 		rate_limit = 60000/100
@@ -195,6 +201,10 @@ async.series [ ( cb ) ->
 	, ( cb ) ->
 		update_database cb
 
+	, ( cb ) ->
+		log "Starting the web server.."
+		
+		return cb null
 	], ( err, res ) ->
 		if err
 			log "Unable to startup: #{err}"
