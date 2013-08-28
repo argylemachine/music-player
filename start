@@ -5,26 +5,62 @@ fs	= require "fs"
 async	= require "async"
 util	= require "util"
 find	= require "find"
+mp3info	= require "mp3info"
 
 config	= { }
+runtime	= { }
 
-find_mp3_files = ( cb ) ->
-	# This function finds mp3 files in config['directories']..
-	async.map config['directories'], ( directory, cb ) ->
-		find.file /\.mp3/, directory, ( files ) ->
-			return cb null, files
 
-	, ( err, file_arrays ) ->
-		_r = [ ]
-		async.each file_arrays, ( file_array, cb ) ->
-			for file in file_array
-				if file in _r
-					continue
-				_r.push file
+update_database = ( cb ) ->
+	log "Updating the database.."
+	
+	async.waterfall [ ( cb ) ->
+		log "Searching for mp3 files.."
 
+		async.map config['directories'], ( directory, cb ) ->
+			find.file /\.mp3/, directory, ( files ) ->
+				return cb null, files
+
+		, ( err, file_arrays ) ->
+			_r = [ ]
+			async.each file_arrays, ( file_array, cb ) ->
+				for file in file_array
+					if file in _r
+						continue
+					_r.push file
+
+				cb null
+			, ( err ) ->
+				cb null, _r
+
+	
+	, ( files, cb ) ->
+		log "Scraping metadata of files.."
+		async.map files, ( file, cb ) ->
+			mp3info file, ( err, file_info ) ->
+				if err
+					return cb err
+				cb null, { "path": file, "info": file_info }
+		, ( err, file_infos ) ->
+			if err
+				return cb err
+			return cb null, file_infos
+
+	, ( files, cb ) ->
+		log "Checking the database to see if the song exists."
+		
+		async.each files, ( file, cb ) ->
+			log "Would check #{file['info']['id3']['artist']} - #{file['info']['id3']['title']}"
 			cb null
 		, ( err ) ->
-			cb null, _r
+			if err
+				return cb err
+			return cb null
+
+	], ( err ) ->
+		log "Done updating the database.."
+		return cb null
+
 
 async.series [ ( cb ) ->
 		log "Parsing config.."
@@ -38,7 +74,7 @@ async.series [ ( cb ) ->
 				return cb err
 	, ( cb ) ->
 		log "Validating config.."
-		async.map [ "port", "directories", "echonest_api_key" ], ( req, cb ) ->
+		async.map [ "database_url", "database_db", "port", "directories", "echonest_api_key" ], ( req, cb ) ->
 			if not config[req]?
 				return cb "Field #{req} not found."
 			cb null
@@ -46,14 +82,15 @@ async.series [ ( cb ) ->
 			if err
 				return cb err
 			cb null
+
 	, ( cb ) ->
-		log "Searching directories for files.."
-		find_mp3_files ( err, files ) ->
-			log "Files are #{util.inspect files}"
-			return cb null
+		update_database cb
+
 	], ( err, res ) ->
 		if err
 			log "Unable to startup: #{err}"
 			process.exit 1
 		log "Startup complete!"
+
+
 
