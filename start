@@ -48,7 +48,7 @@ async.series [ ( cb ) ->
 
 							return
 
-						if item_stat.isFile()
+						if item_stat.isFile() and item_path.indexOf( ".mp3" ) is item_path.length - ".mp3".length
 							return cb null, [ item_path ]
 
 						cb( )
@@ -80,6 +80,8 @@ async.series [ ( cb ) ->
 				files.push file for file in file_array when file not in files
 				return cb( )
 			, ( err ) ->
+				# At this point go and check to see if all the files are known..
+				# TODO
 				log "Files are now #{util.inspect files}"
 				return cb null
 	], ( err, res ) ->
