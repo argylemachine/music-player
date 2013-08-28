@@ -52,7 +52,11 @@ update_database = ( cb ) ->
 		async.each files, ( file, cb ) ->
 
 			# Sanity check to make sure the file_info contains at least a title and artist..
-			#TODO
+			# For now just skip the files that do not match.. 
+			for req, reg of { "artist": /[a-zA-Z]/, "title": /[a-zA-Z]/ }
+				if not file['info']['id3'][req]? or not file['info']['id3'][req].match reg
+					log "Skipping invalid ID3 tagged file #{file['path']}.."
+					return cb null
 
 			# Check runtime['db'] for file['info']['id3']['artist'] and file['info']['id3']['title']...
 			runtime['db'].view 'songs/by-artist-and-title', { key: [ file['info']['id3']['artist'], file['info']['id3']['title'] ] }, ( err, docs ) ->
