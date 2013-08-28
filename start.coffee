@@ -204,8 +204,7 @@ async.series [ ( cb ) ->
 
 		return cb null
 
-	, ( cb ) ->
-		update_database cb
+	, update_database
 
 	, ( cb ) ->
 		log "Starting the web server.."
