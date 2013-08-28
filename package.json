@@ -6,6 +6,7 @@
 	"dependencies": {
 		"coffee-script": "latest",
 		"logging": "latest",
-		"async": "latest"
+		"async": "latest",
+		"find": "latest"
 	}
 }

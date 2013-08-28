@@ -4,9 +4,27 @@ log	= require( "logging" ).from __filename
 fs	= require "fs"
 async	= require "async"
 util	= require "util"
-path	= require "path"
+find	= require "find"
 
 config	= { }
+
+find_mp3_files = ( cb ) ->
+	# This function finds mp3 files in config['directories']..
+	async.map config['directories'], ( directory, cb ) ->
+		find.file /\.mp3/, directory, ( files ) ->
+			return cb null, files
+
+	, ( err, file_arrays ) ->
+		_r = [ ]
+		async.each file_arrays, ( file_array, cb ) ->
+			for file in file_array
+				if file in _r
+					continue
+				_r.push file
+
+			cb null
+		, ( err ) ->
+			cb null, _r
 
 async.series [ ( cb ) ->
 		log "Parsing config.."
@@ -30,60 +48,9 @@ async.series [ ( cb ) ->
 			cb null
 	, ( cb ) ->
 		log "Searching directories for files.."
-
-		recursive_find = ( directory, cb ) ->
-			fs.readdir directory, ( err, items ) ->
-				if err
-					return cb err
-				async.map items, ( item, cb ) ->
-					item_path = path.join directory, item
-					fs.stat item_path, ( err, item_stat ) ->
-						if err
-							return cb err
-						if item_stat.isDirectory()
-							recursive_find item_path, ( err, files ) ->
-								if err
-									return cb err
-								return cb null, files
-
-							return
-
-						if item_stat.isFile() and item_path.indexOf( ".mp3" ) is item_path.length - ".mp3".length
-							return cb null, [ item_path ]
-
-						cb( )
-				, ( err, file_arrays ) ->
-					if err
-						return cb err
-
-					_r = [ ]
-					async.each file_arrays, ( file_array, cb ) ->
-						if not file_array
-							return cb( )
-						_r.push file for file in file_array when file not in _r
-						return cb( )
-					, ( err ) ->
-						return cb null, _r
-
-
-		async.map config['directories'], recursive_find, ( err, file_arrays ) ->
-			if err
-				return cb err
-
-			# Because the recursive find function returns an array, we now have an array of arrays..
-			# Merge them all back into a single one, getting rid of duplicates.
-			
-			files = [ ]
-			async.each file_arrays, ( file_array, cb ) ->
-				if not file_array
-					return cb( )
-				files.push file for file in file_array when file not in files
-				return cb( )
-			, ( err ) ->
-				# At this point go and check to see if all the files are known..
-				# TODO
-				log "Files are now #{util.inspect files}"
-				return cb null
+		find_mp3_files ( err, files ) ->
+			log "Files are #{util.inspect files}"
+			return cb null
 	], ( err, res ) ->
 		if err
 			log "Unable to startup: #{err}"
