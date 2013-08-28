@@ -62,16 +62,16 @@ update_database = ( cb ) ->
 				_doc = file['info']['id3']
 				_doc.type = "song"
 
-				log "#{_doc.artist}/#{_doc.title} .."
-
 				# Query echonest and try to find that song..
 				runtime['echonest'].song.search { "title": _doc['title'], "artist": _doc['artist'] }, ( err, res ) ->
+
+					log "#{_doc.artist}/#{_doc.title} - search."
 
 					# Boolean to handle if we should query for that song ident..
 					next_query = true
 					if err
 						next_query = false
-					
+
 					if not res.songs? or res.songs.length < 1
 						next_query = false
 
@@ -86,6 +86,8 @@ update_database = ( cb ) ->
 
 					# Make the request for the audio summary for the particular song on echonest.
 					runtime['echonest'].song.profile { "id": res.songs[0].id, "bucket": "audio_summary" }, ( err, res ) ->
+
+							log "#{_doc.artist}/#{_doc.title} - audio_summary."
 							
 							# Again, simple boolean flag regarding if we found the audio summary..
 							found_summary = true
@@ -99,6 +101,8 @@ update_database = ( cb ) ->
 							if found_summary
 								for key, val of res.songs[0].audio_summary
 									_doc[key] = val
+							else
+								log "Not able to find the audio summary."
 							
 							# Save the doc.
 							runtime['db'].save _doc, ( err, res ) ->
@@ -180,7 +184,9 @@ async.series [ ( cb ) ->
 		log "Setting up new echonest connection handler.."
 
 		# Get rate_limit by doing a quick http query to echonest and parsing the header..
-		rate_limit = 5
+		# Note that the rate limit in the echonest library is the time ( in ms ) between requests, so we generate
+		# it by dividing a minute by the number of requests we're allowed to run in a minute ( with a buffer ).
+		rate_limit = 60000/100
 
 		runtime['echonest'] = new echonest.Echonest { "api_key": config['echonest_api_key'], "rate_limit": rate_limit }
 
