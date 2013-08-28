@@ -1,5 +1,3 @@
-#!./node_modules/coffee-script/bin/coffee
-
 log	= require( "logging" ).from __filename
 fs	= require "fs"
 async	= require "async"
@@ -23,7 +21,7 @@ echonest_get = ( title, artist, cb ) ->
 			opts.query[key] = val
 		delete opts['search']
 
-		req = http.get url.format opts , ( res ) ->
+		req = http.get url.format( opts ) , ( res ) ->
 			_r = ""
 			res.setEncoding "utf8"
 			res.on "error", ( err ) ->
@@ -108,18 +106,14 @@ update_database = ( cb ) ->
 
 					# Query echonest and try to find that song..
 					echonest_get _doc['title'], _doc['artist'], ( err, res ) ->
-						log "Err is #{util.inspect err} res is #{util.inspect res}"
 						if not err
-							log "I got echonest res of #{util.inspect res}"
-							for key, val of res.audio_summary
+							for key, val of res
 								_doc[key] = val
-						else
-							log "Echonest error: #{err}"
 						
 						runtime['db'].save _doc, ( err, res ) ->
 							if err
 								return cb err
-							log "Inserted song #{_doc.title} by #{_doc.artist}"
+							log "#{_doc.title} by #{_doc.artist}"
 							return cb null
 				else
 					return cb null
