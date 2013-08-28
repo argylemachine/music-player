@@ -31,7 +31,7 @@ async.series [ ( cb ) ->
 	, ( cb ) ->
 		log "Searching directories for files.."
 
-		async.map config['directories'], ( directory, cb ) ->
+		recursive_find = ( directory, cb ) ->
 			fs.readdir directory, ( err, items ) ->
 				if err
 					return cb err
@@ -40,23 +40,48 @@ async.series [ ( cb ) ->
 					fs.stat item_path, ( err, item_stat ) ->
 						if err
 							return cb err
+						if item_stat.isDirectory()
+							recursive_find item_path, ( err, files ) ->
+								if err
+									return cb err
+								return cb null, files
+
+							return
 
 						if item_stat.isFile()
-							return cb null, item_path
-						
-						cb null, null
+							return cb null, [ item_path ]
 
-				, ( err, files ) ->
+						cb( )
+				, ( err, file_arrays ) ->
 					if err
 						return cb err
+
 					_r = [ ]
-					_r.push file for file in files when file isnt null
-					return cb null, _r
-		, ( err, file_arrays ) ->
+					async.each file_arrays, ( file_array, cb ) ->
+						if not file_array
+							return cb( )
+						_r.push file for file in file_array when file not in _r
+						return cb( )
+					, ( err ) ->
+						return cb null, _r
+
+
+		async.map config['directories'], recursive_find, ( err, file_arrays ) ->
 			if err
 				return cb err
-			log "I have file arrays of #{util.inspect file_arrays}"
-			cb null
+
+			# Because the recursive find function returns an array, we now have an array of arrays..
+			# Merge them all back into a single one, getting rid of duplicates.
+			
+			files = [ ]
+			async.each file_arrays, ( file_array, cb ) ->
+				if not file_array
+					return cb( )
+				files.push file for file in file_array when file not in files
+				return cb( )
+			, ( err ) ->
+				log "Files are now #{util.inspect files}"
+				return cb null
 	], ( err, res ) ->
 		if err
 			log "Unable to startup: #{err}"

@@ -1,5 +1,5 @@
 {
 	"port": 1338,
-	"directories": [ "/home/robert", "/home/robert/Music" ],
+	"directories": [ "/home/robert/Music" ],
 	"echonest_api_key": "some_key"
 }
