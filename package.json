@@ -8,6 +8,7 @@
 		"logging": "latest",
 		"async": "latest",
 		"find": "latest",
-		"mp3info": "latest"
+		"mp3info": "latest",
+		"cradle": "latest"
 	}
 }

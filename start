@@ -6,10 +6,10 @@ async	= require "async"
 util	= require "util"
 find	= require "find"
 mp3info	= require "mp3info"
+cradle	= require "cradle"
 
 config	= { }
 runtime	= { }
-
 
 update_database = ( cb ) ->
 	log "Updating the database.."
@@ -47,10 +47,10 @@ update_database = ( cb ) ->
 			return cb null, file_infos
 
 	, ( files, cb ) ->
-		log "Checking the database to see if the song exists."
+		log "Verifying database records."
 		
 		async.each files, ( file, cb ) ->
-			log "Would check #{file['info']['id3']['artist']} - #{file['info']['id3']['title']}"
+			# Check runtime['db'] for file['info']['id3']['artist'] and file['info']['id3']['title']...
 			cb null
 		, ( err ) ->
 			if err
@@ -74,7 +74,7 @@ async.series [ ( cb ) ->
 				return cb err
 	, ( cb ) ->
 		log "Validating config.."
-		async.map [ "database_url", "database_db", "port", "directories", "echonest_api_key" ], ( req, cb ) ->
+		async.map [ "database_url", "database_port", "database_db", "port", "directories", "echonest_api_key" ], ( req, cb ) ->
 			if not config[req]?
 				return cb "Field #{req} not found."
 			cb null
@@ -83,6 +83,21 @@ async.series [ ( cb ) ->
 				return cb err
 			cb null
 
+	, ( cb ) ->
+		log "Setting up database connection."
+		db = new (cradle.Connection)( config['database_url'], config['database_port'], { "cache": false } ).database config['database_db']
+
+		db.exists ( err, exists ) ->
+			if err
+				return cb err
+
+			runtime['db'] = db
+
+			if not exists
+				db.create( )
+				return cb null
+
+			return cb null
 	, ( cb ) ->
 		update_database cb
 

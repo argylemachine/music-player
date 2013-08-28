@@ -2,6 +2,7 @@
 	"port": 1338,
 	"directories": [ "/home/robert/Music/rodriguez_cold-fact/" ],
 	"echonest_api_key": "some_key",
-	"database_url": "http://localhost:5984/",
+	"database_url": "http://localhost",
+	"database_port": 5984,
 	"database_db": "music-player"
 }
