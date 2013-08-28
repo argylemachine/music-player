@@ -53,10 +53,17 @@ class echonest
 		req.on "error", ( err ) ->
 			return cb err
 
-
 	song_search: ( artist, title, cb ) ->
-		
+	        @_get "http://developer.echonest.com/api/v4/song/search", { "api_key": @api_key, "artist": artist, "title": title }, cb
+	
 	song_profile: ( song_id, cb ) ->
-		
+		@_get "http://developer.echonest.com/api/v4/song/profile", { "api_key": @api_key, "id": song_id, "bucket": "audio_summary" }, ( err, res ) ->
+			if err
+				return cb err
+
+			if res.songs.length < 1
+				return cb "No song found."
+
+			return cb null, res.songs[0].audio_summary
 
 exports.echonest = echonest
