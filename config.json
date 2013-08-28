@@ -1,6 +1,6 @@
 {
 	"port": 1338,
-	"directories": [ "/home/robert/Music/Blue Man Group - The Complex/" ],
+	"directories": [ "/home/robert/Music/The Hobbit An Unexpected Journey Soundtrack (2012)/" ],
 	"echonest_api_key": "...",
 	"database_url": "http://localhost",
 	"database_port": 5984,

@@ -9,6 +9,7 @@
 		"async": "latest",
 		"find": "latest",
 		"mp3info": "latest",
-		"cradle": "latest"
+		"cradle": "latest",
+		"echonest": "latest"
 	}
 }

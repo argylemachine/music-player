@@ -1,10 +1,11 @@
-log	= require( "logging" ).from __filename
-fs	= require "fs"
-async	= require "async"
-util	= require "util"
-find	= require "find"
-mp3info	= require "mp3info"
-cradle	= require "cradle"
+log		= require( "logging" ).from __filename
+fs		= require "fs"
+async		= require "async"
+util		= require "util"
+find		= require "find"
+mp3info		= require "mp3info"
+cradle		= require "cradle"
+echonest	= require "echonest"
 
 config	= { }
 runtime	= { }
