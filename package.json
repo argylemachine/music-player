@@ -10,6 +10,7 @@
 		"find": "latest",
 		"mp3info": "latest",
 		"cradle": "latest",
-		"echonest": "latest"
+		"echonest": "latest",
+		"express": "latest"
 	}
 }

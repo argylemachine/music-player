@@ -6,6 +6,8 @@ find		= require "find"
 mp3info		= require "mp3info"
 cradle		= require "cradle"
 echonest	= require "echonest"
+http		= require "http"
+express		= require "express"
 
 config	= { }
 runtime	= { }
@@ -207,8 +209,17 @@ async.series [ ( cb ) ->
 
 	, ( cb ) ->
 		log "Starting the web server.."
+
+		app = express( )
+
+		app.get "/", ( req, res ) ->
+			res.json "HI"
 		
-		return cb null
+		web_server = http.createServer app
+
+		web_server.listen config['port'], ( ) ->
+			return cb null
+
 	], ( err, res ) ->
 		if err
 			log "Unable to startup: #{err}"
