@@ -68,19 +68,18 @@ update_database = ( cb ) ->
 					# Boolean to handle if we should query for that song ident..
 					next_query = true
 					if err
-						log "Couldn't perform search: #{err}"
 						next_query = false
 					
 					if res.songs.length < 1
-						log "Couldn't find any matching songs."
 						next_query = false
+
+					log "#{_doc.artist}/#{_doc.title} .."
 
 					# If we weren't able to find the correct song on echonest, then simply save the doc we have..
 					if not next_query
 						runtime['db'].save _doc, ( err, res ) ->
 							if err
 								return cb err
-							log "#{_doc.title} by #{_doc.artist}"
 							return cb null
 
 						return
@@ -91,11 +90,9 @@ update_database = ( cb ) ->
 							# Again, simple boolean flag regarding if we found the audio summary..
 							found_summary = true
 							if err
-								log "Couldn't get audio profile: #{err}"
 								found_summary = false
 
 							if res.songs.length < 1
-								log "Couldn't find song profile.."
 								found_summary = false
 		
 							# Shove the results we got from the audio summary into the doc to save..
@@ -107,7 +104,6 @@ update_database = ( cb ) ->
 							runtime['db'].save _doc, ( err, res ) ->
 								if err
 									return cb err
-								log "#{_doc.title by #{_doc.artist}"
 								return cb null
 
 		# This is the cb for async.each
@@ -186,7 +182,8 @@ async.series [ ( cb ) ->
 		# Get rate_limit by doing a quick http query to echonest and parsing the header..
 		rate_limit = 120
 
-		runtime['echonest'] = echonest.Echonest { "api_key": config['echonest_api_key'], "rate_limit": rate_limit }
+		runtime['echonest'] = new echonest.Echonest { "api_key": config['echonest_api_key'], "rate_limit": rate_limit }
+
 		return cb null
 
 	, ( cb ) ->
