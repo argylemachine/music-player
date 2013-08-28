@@ -23,7 +23,7 @@ echonest_get = ( title, artist, cb ) ->
 			opts.query[key] = val
 		delete opts['search']
 
-		req = http.request url.format opts, ( res ) ->
+		req = http.get url.format opts , ( res ) ->
 			_r = ""
 			res.setEncoding "utf8"
 			res.on "error", ( err ) ->
@@ -35,19 +35,27 @@ echonest_get = ( title, artist, cb ) ->
 			res.on "end", ( ) ->
 				try
 					_o = JSON.parse _r
-					return cb null, _o
+					return cb null, _o.response
 				catch err
 					return cb err
 
 		req.on "error", ( err ) ->
 			return cb err
 
-	_get "http://google.ca/?foo=bar", { "one": "two" }, ( err, res ) ->
+	_get "http://developer.echonest.com/api/v4/song/search", { "api_key": config['echonest_api_key'], "artist": artist, "title": title }, ( err, res ) ->
 		if err
-			log "I got error of #{err}"
 			return cb err
 
-		return cb null, { }
+		if res.songs.length is 0
+			return cb "Song not found.."
+		
+		song = res.songs[0]
+		
+		_get "http://developer.echonest.com/api/v4/song/profile", { "api_key": config['echonest_api_key'], "id": song.id, "bucket": "audio_summary" }, ( err, res ) ->
+			if err
+				return cb err
+
+			return cb null, res.songs[0].audio_summary
 
 update_database = ( cb ) ->
 	log "Updating the database.."
@@ -100,10 +108,14 @@ update_database = ( cb ) ->
 
 					# Query echonest and try to find that song..
 					echonest_get _doc['title'], _doc['artist'], ( err, res ) ->
+						log "Err is #{util.inspect err} res is #{util.inspect res}"
 						if not err
+							log "I got echonest res of #{util.inspect res}"
 							for key, val of res.audio_summary
 								_doc[key] = val
-							
+						else
+							log "Echonest error: #{err}"
+						
 						runtime['db'].save _doc, ( err, res ) ->
 							if err
 								return cb err

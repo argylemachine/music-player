@@ -1,7 +1,7 @@
 {
 	"port": 1338,
 	"directories": [ "/home/robert/Music/Blue Man Group - The Complex/" ],
-	"echonest_api_key": "some_key",
+	"echonest_api_key": "...",
 	"database_url": "http://localhost",
 	"database_port": 5984,
 	"database_db": "music-player"
