@@ -1,6 +1,6 @@
 {
 	"port": 1338,
-	"directories": [ "/home/robert/Music/rodriguez_cold-fact/" ],
+	"directories": [ "/home/robert/Music/Blue Man Group - The Complex/" ],
 	"echonest_api_key": "some_key",
 	"database_url": "http://localhost",
 	"database_port": 5984,

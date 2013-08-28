@@ -7,9 +7,47 @@ util	= require "util"
 find	= require "find"
 mp3info	= require "mp3info"
 cradle	= require "cradle"
+http	= require "http"
+url	= require "url"
 
 config	= { }
 runtime	= { }
+
+echonest_get = ( title, artist, cb ) ->
+	# This function queries echonest for the song identifer, then
+	# queries the song audio summary using the identifer.
+
+	_get = ( _url, args, cb ) ->
+		opts = url.parse _url, true
+		for key, val of args
+			opts.query[key] = val
+		delete opts['search']
+
+		req = http.request url.format opts, ( res ) ->
+			_r = ""
+			res.setEncoding "utf8"
+			res.on "error", ( err ) ->
+				return cb err
+			
+			res.on "data", ( chunk ) ->
+				_r += chunk
+
+			res.on "end", ( ) ->
+				try
+					_o = JSON.parse _r
+					return cb null, _o
+				catch err
+					return cb err
+
+		req.on "error", ( err ) ->
+			return cb err
+
+	_get "http://google.ca/?foo=bar", { "one": "two" }, ( err, res ) ->
+		if err
+			log "I got error of #{err}"
+			return cb err
+
+		return cb null, { }
 
 update_database = ( cb ) ->
 	log "Updating the database.."
@@ -55,15 +93,22 @@ update_database = ( cb ) ->
 				if err
 					return cb err
 	
-				# If that document doesn't exist, create it in the database..
+				# If that document doesn't exist, query echonest and create it in the database..
 				if docs.length is 0
 					_doc = file['info']['id3']
 					_doc.type = "song"
-					runtime['db'].save _doc, ( err, res ) ->
-						if err
-							return cb err
-						log "Updated database ( #{_doc.title} by #{_doc.artist} )"
-						return cb null
+
+					# Query echonest and try to find that song..
+					echonest_get _doc['title'], _doc['artist'], ( err, res ) ->
+						if not err
+							for key, val of res.audio_summary
+								_doc[key] = val
+							
+						runtime['db'].save _doc, ( err, res ) ->
+							if err
+								return cb err
+							log "Inserted song #{_doc.title} by #{_doc.artist}"
+							return cb null
 				else
 					return cb null
 		, ( err ) ->
