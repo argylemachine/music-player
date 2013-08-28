@@ -55,23 +55,62 @@ update_database = ( cb ) ->
 					return cb err
 	
 				# If that document doesn't exist, query echonest and create it in the database..
-				if docs.length is 0
-					_doc = file['info']['id3']
-					_doc.type = "song"
+				if docs.length isnt 0
+					return cb null
 
-					# Query echonest and try to find that song..
-					echonest_get _doc['title'], _doc['artist'], ( err, res ) ->
-						if not err
-							for key, val of res
-								_doc[key] = val
-						
+				
+				_doc = file['info']['id3']
+				_doc.type = "song"
+
+				# Query echonest and try to find that song..
+				runtime['echonest'].song.search { "title": _doc['title'], "artist": _doc['artist'] }, ( err, res ) ->
+
+					# Boolean to handle if we should query for that song ident..
+					next_query = true
+					if err
+						log "Couldn't perform search: #{err}"
+						next_query = false
+					
+					if res.songs.length < 1
+						log "Couldn't find any matching songs."
+						next_query = false
+
+					# If we weren't able to find the correct song on echonest, then simply save the doc we have..
+					if not next_query
 						runtime['db'].save _doc, ( err, res ) ->
 							if err
 								return cb err
 							log "#{_doc.title} by #{_doc.artist}"
 							return cb null
-				else
-					return cb null
+
+						return
+
+					# Make the request for the audio summary for the particular song on echonest.
+					runtime['echonest'].song.profile { "id": res.songs[0].id, "bucket": "audio_summary" }, ( err, res ) ->
+							
+							# Again, simple boolean flag regarding if we found the audio summary..
+							found_summary = true
+							if err
+								log "Couldn't get audio profile: #{err}"
+								found_summary = false
+
+							if res.songs.length < 1
+								log "Couldn't find song profile.."
+								found_summary = false
+		
+							# Shove the results we got from the audio summary into the doc to save..
+							if found_summary
+								for key, val of res.songs[0].audio_summary
+									_doc[key] = val
+							
+							# Save the doc.
+							runtime['db'].save _doc, ( err, res ) ->
+								if err
+									return cb err
+								log "#{_doc.title by #{_doc.artist}"
+								return cb null
+
+		# This is the cb for async.each
 		, ( err ) ->
 			if err
 				return cb err
@@ -140,6 +179,15 @@ async.series [ ( cb ) ->
 				return cb err
 			else
 				return cb null
+
+	, ( cb ) ->
+		log "Setting up new echonest connection handler.."
+
+		# Get rate_limit by doing a quick http query to echonest and parsing the header..
+		rate_limit = 120
+
+		runtime['echonest'] = echonest.Echonest { "api_key": config['echonest_api_key'], "rate_limit": rate_limit }
+		return cb null
 
 	, ( cb ) ->
 		update_database cb
