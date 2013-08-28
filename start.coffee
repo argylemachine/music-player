@@ -180,7 +180,7 @@ async.series [ ( cb ) ->
 		log "Setting up new echonest connection handler.."
 
 		# Get rate_limit by doing a quick http query to echonest and parsing the header..
-		rate_limit = 30
+		rate_limit = 5
 
 		runtime['echonest'] = new echonest.Echonest { "api_key": config['echonest_api_key'], "rate_limit": rate_limit }
 
