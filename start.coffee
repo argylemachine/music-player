@@ -68,7 +68,6 @@ update_database = ( cb ) ->
 				# If that document doesn't exist, query echonest and create it in the database..
 				if docs.length isnt 0
 					return cb null
-
 				
 				_doc = file['info']['id3']
 				_doc.type = "song"
@@ -132,6 +131,33 @@ update_database = ( cb ) ->
 		return cb null
 
 
+start_webserver = ( cb ) ->
+
+	app = express( )
+
+	app.use express.logger( )
+	app.use express.static __dirname + "/static"
+
+	_error_out = ( res, err ) ->
+		res.json { "error": err }
+
+	app.get "/songs", ( req, res ) ->
+		runtime['db'].view "songs/by-artist-and-title", ( err, docs ) ->
+			if err
+				return _error_out res, err
+
+			res.json docs
+
+	app.get "/", ( req, res ) ->
+		res.redirect "/index.html"
+	
+	web_server = http.createServer app
+
+	web_server.listen config['port'], ( ) ->
+		log "Started the web server.."
+		return cb null
+
+
 async.series [ ( cb ) ->
 		log "Parsing config.."
 		fs.readFile "config.json", ( err, data ) ->
@@ -179,6 +205,11 @@ async.series [ ( cb ) ->
 						"map": ( doc ) ->
 							if doc.type is "song" and doc.artist and doc.title
 								emit [ doc.artist, doc.title ], doc
+					},
+					"null-by-artist-and-title": {
+						"map": ( doc ) ->
+							if doc.type is "song" and doc.artist and doc.title
+								emit [ doc.artist, doc.title ], null
 					}
 				}, ( err, res ) ->
 					if err
@@ -206,18 +237,7 @@ async.series [ ( cb ) ->
 
 	, update_database
 
-	, ( cb ) ->
-		log "Starting the web server.."
-
-		app = express( )
-
-		app.get "/", ( req, res ) ->
-			res.json "HI"
-		
-		web_server = http.createServer app
-
-		web_server.listen config['port'], ( ) ->
-			return cb null
+	, start_webserver
 
 	], ( err, res ) ->
 		if err

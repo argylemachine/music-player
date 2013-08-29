@@ -1,0 +1,57 @@
+<html>
+	<head>
+		<title>music-player!</title>
+		<script src="lib/jquery-2.0.3.min.js"></script>
+		<script src="lib/jquery-ui.min.js"></script>
+		<script src="lib/canvasjs.min.js"></script>
+		<script src="lib/async.js"></script>
+		<link rel="stylesheet" type="text/css" href="lib/jquery-ui.min.css" />
+		<style type="text/css">
+		#main_graph { 
+			width: 85%;
+			height: 85%;
+		}
+		</style>
+		<script type="text/javascript">
+		$(document).ready( function( ){
+
+			show_loading = function( cb ){
+				// Show the loading dialog and progress bar..
+				$("#loading").dialog( { modal: true,
+							title: "Loading..",
+							draggable: false, 
+							resizable: false,
+							minWidth: 400,
+							minHeight: 200 } );
+				$("#progressbar").progressbar( { value: false } );
+				return cb( null );
+			}
+
+			hide_loading = function( cb ){
+				$("#progressbar").progressbar( "destroy" );
+				$("#loading").dialog( "close" );
+				return cb( null );
+			}
+
+			main_graph = { }
+
+			async.series( [ show_loading, function( cb ){
+				main_graph = new CanvasJS.Chart( "main_graph", { "title": { "text": "Main Graph" } } );
+				main_graph.render( );
+				return cb( null );
+			}, hide_loading ], function( err, res ){
+				
+			} );
+			
+		} );
+		</script>
+	</head>
+	<body>
+		<div id="loading">
+			<div class="message">The hamsters are running. Hold on!</div>
+			<p><div id="progressbar"></div></p>
+			<div class="detail_message"></div>
+		</div>
+		<div id="main_graph"></div>
+	</body>
+</html>
