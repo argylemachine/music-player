@@ -161,12 +161,27 @@ start_webserver = ( cb ) ->
 
 			res.json docs
 
-	app.get "/pca/:song_id/:pca_attributes", ( req, res ) ->
-		
-		# Perform a PCA with req.pca_attributes using the document req.song
+	app.get "/songs/:pca_attributes", ( req, res ) ->
+		runtime['db'].view "songs/by-artist-and-title", ( err, docs ) ->
+			if err
+				return _error_out res, err
 
-		res.json "what?"
+			async.map (doc.value for doc in docs), ( doc, cb ) ->
+				# Perform a PCA for doc..
+				# TODO
+				pca_x = "foo"
+				pca_y = "bar"
 
+				# Shove the values of the computed pca into the document and return it.
+				doc.pca_x = pca_x
+				doc.pca_y = pca_y
+				cb null, doc
+			, ( err, _res ) ->
+				if err
+					return _error_out res, err
+
+				res.json _res
+			
 	app.get "/", ( req, res ) ->
 		res.redirect "/index.html"
 	
