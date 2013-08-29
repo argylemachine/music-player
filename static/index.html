@@ -11,9 +11,25 @@
 			width: 85%;
 			height: 85%;
 		}
+		#menu {
+			float: right;
+			width: 10%;
+		}
 		</style>
 		<script type="text/javascript">
 		$(document).ready( function( ){
+
+			main_graph = { }
+
+			// Hide all the items that should be hidden in the start.
+			$(".hide").hide( );
+
+			$("#menu").children( "a" ).each( function( a ){
+				_name = $(a).html();
+				$(a).click( function( ){
+					window["show_"+_name]( );
+				} );
+			} );
 
 			show_loading = function( cb ){
 				// Show the loading dialog and progress bar..
@@ -33,13 +49,43 @@
 				return cb( null );
 			}
 
-			main_graph = { }
-
-			async.series( [ show_loading, function( cb ){
-				main_graph = new CanvasJS.Chart( "main_graph", { "title": { "text": "Main Graph" } } );
+			setup_canvas = function( cb ){
+				main_graph = new CanvasJS.Chart( "main_graph", {	"title": { "text": "Main Graph" },
+											"data": { } } );
 				main_graph.render( );
 				return cb( null );
-			}, hide_loading ], function( err, res ){
+			}
+			
+			setup_options = function( cb ){
+				$("#options").dialog( { modal: false,
+							title: "Options",
+							draggable: true,
+							resizable: true,
+							minWidth: 300,
+							minHeight: 500 } );
+
+				$("#options").show( );
+				return cb( null );
+			}
+
+			setup_menu = function( cb ){
+				$("#menu").menu( );
+				$("#menu").show( );
+				return cb( null );
+			}
+
+			load_songs = function( cb ){
+				$.ajax( "/songs",{	"complete": function( data ){
+								console.log( "I have data " + JSON.stringify( data ) );
+								return cb( null );
+							},
+							"error": function( err ){
+								console.log( "Got error of " + err );
+								return cb( err );
+							} } );
+			}
+
+			async.series( [ show_loading, setup_canvas, setup_options, setup_menu, load_songs, hide_loading ], function( err, res ){
 				
 			} );
 			
@@ -51,6 +97,25 @@
 			<div class="message">The hamsters are running. Hold on!</div>
 			<p><div id="progressbar"></div></p>
 			<div class="detail_message"></div>
+		</div>
+		<div id="options" class="hide">
+			liveness
+			tempo
+			speechiness
+			acousticness
+			duration
+			mode
+			key
+			energy
+			time_signature
+			duration
+			loudness
+			valence
+			danceability
+		</div>
+		<div id="menu" class="hide">
+			<li><a href='#' onclick="$('#options').dialog('open');">Options</a></li>
+			<li><a href='#'>What?</a></li>
 		</div>
 		<div id="main_graph"></div>
 	</body>

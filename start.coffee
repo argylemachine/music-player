@@ -166,17 +166,16 @@ start_webserver = ( cb ) ->
 
 			# Compute the PCA for attrs and docs..
 
-			# The max and min arrays.. each index pertains to the attr at that position.
-			max = [ ]
-			min = [ ]
-
-			for attr in attrs
-				max.push Number.MIN_VALUE
-				min.push Number.MAX_VALUE
-				
 			#TODO
 
-			res.json docs
+			_r = [ ]
+			for doc in (doc.value for doc in docs)
+				# Just placeholder.. random between 1 and 100.
+				doc.pca_x = Math.floor (Math.random( )*100) + 1
+				doc.pca_y = Math.floor (Math.random( )*100) + 1
+				_r.push doc
+
+			res.json _r
 			
 	app.get "/", ( req, res ) ->
 		res.redirect "/index.html"
