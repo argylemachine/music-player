@@ -141,12 +141,31 @@ start_webserver = ( cb ) ->
 	_error_out = ( res, err ) ->
 		res.json { "error": err }
 
+	app.param "song_id", ( req, res, cb, song_id ) ->
+		runtime['db'].get song_id, ( err, res ) ->
+			if err
+				return _error_out res, err
+			req.song = res
+			cb null
+
+	app.param "pca_attributes", ( req, res, cb, pca_attributes ) ->
+		# Parse the PCA attributse that have been specified..
+
+		req.pca_attributes = pca_attributes.split ","
+		cb null
+
 	app.get "/songs", ( req, res ) ->
 		runtime['db'].view "songs/by-artist-and-title", ( err, docs ) ->
 			if err
 				return _error_out res, err
 
 			res.json docs
+
+	app.get "/pca/:song_id/:pca_attributes", ( req, res ) ->
+		
+		# Perform a PCA with req.pca_attributes using the document req.song
+
+		res.json "what?"
 
 	app.get "/", ( req, res ) ->
 		res.redirect "/index.html"
