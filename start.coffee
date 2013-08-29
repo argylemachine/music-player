@@ -141,34 +141,43 @@ start_webserver = ( cb ) ->
 	_error_out = ( res, err ) ->
 		res.json { "error": err }
 
-	app.param "song_id", ( req, res, cb, song_id ) ->
-		runtime['db'].get song_id, ( err, res ) ->
-			if err
-				return _error_out res, err
-			req.song = res
-			cb null
-
-	app.param "pca_attributes", ( req, res, cb, pca_attributes ) ->
-		# Parse the PCA attributse that have been specified..
-
-		req.pca_attributes = pca_attributes.split ","
-		cb null
 
 	app.get "/songs", ( req, res ) ->
 		runtime['db'].view "songs/by-artist-and-title", ( err, docs ) ->
 			if err
 				return _error_out res, err
 
-			res.json docs
+			res.json (doc.value for doc in docs)
 
-	app.get "/songs/:pca_attributes", ( req, res ) ->
+	app.get "/songs/pca", ( req, res ) ->
+
+		# Setup attributes to pca.. if we don't get anything error out.
+		attrs = req.query.p
+
+		if not attrs
+			return _error_out res, "No p specified."
+
+		if typeof attrs is "string"
+			attrs = [ attrs ]
+
 		runtime['db'].view "songs/by-artist-and-title", ( err, docs ) ->
 			if err
 				return _error_out res, err
 
 			async.map (doc.value for doc in docs), ( doc, cb ) ->
-				# Perform a PCA for doc..
-				# TODO
+
+				# Validate that each of the attrs specified exists in this doc, otherwise simply return
+				# a null for pca_x and pca_y.
+				vals = [ ]
+				for attr in attrs
+					if not doc[attr]?
+						doc.pca_x = null
+						doc.pca_y = null
+						return cb null, doc
+					vals.push doc[attr]
+
+				# Now we perform a PCA on vals..
+				
 				pca_x = "foo"
 				pca_y = "bar"
 
