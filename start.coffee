@@ -152,44 +152,31 @@ start_webserver = ( cb ) ->
 	app.get "/songs/pca", ( req, res ) ->
 
 		# Setup attributes to pca.. if we don't get anything error out.
-		attrs = req.query.p
+		attrs = req.query.pca
 
 		if not attrs
-			return _error_out res, "No p specified."
+			return _error_out res, "No pca specified."
 
 		if typeof attrs is "string"
-			attrs = [ attrs ]
-
+			return _error_out res, "Multiple pca values need to be specified."
+		
 		runtime['db'].view "songs/by-artist-and-title", ( err, docs ) ->
 			if err
 				return _error_out res, err
 
-			async.map (doc.value for doc in docs), ( doc, cb ) ->
+			# Compute the PCA for attrs and docs..
 
-				# Validate that each of the attrs specified exists in this doc, otherwise simply return
-				# a null for pca_x and pca_y.
-				vals = [ ]
-				for attr in attrs
-					if not doc[attr]?
-						doc.pca_x = null
-						doc.pca_y = null
-						return cb null, doc
-					vals.push doc[attr]
+			# The max and min arrays.. each index pertains to the attr at that position.
+			max = [ ]
+			min = [ ]
 
-				# Now we perform a PCA on vals..
+			for attr in attrs
+				max.push Number.MIN_VALUE
+				min.push Number.MAX_VALUE
 				
-				pca_x = "foo"
-				pca_y = "bar"
+			#TODO
 
-				# Shove the values of the computed pca into the document and return it.
-				doc.pca_x = pca_x
-				doc.pca_y = pca_y
-				cb null, doc
-			, ( err, _res ) ->
-				if err
-					return _error_out res, err
-
-				res.json _res
+			res.json docs
 			
 	app.get "/", ( req, res ) ->
 		res.redirect "/index.html"
