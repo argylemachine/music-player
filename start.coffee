@@ -180,11 +180,11 @@ start_webserver = ( cb ) ->
 				# At this point we know that doc is valid..
 
 				# Just a placeholder to compute stuff here..
-				doc.pca_x = Math.floor (Math.random( )*100) + 1
-				doc.pca_y = Math.floor (Math.random( )*100) + 1
+				doc.x = Math.floor (Math.random( )*100) + 1
+				doc.y = Math.floor (Math.random( )*100) + 1
 
 				# Note that we don't shove the entire doc back..
-				_r.push { "artist": doc.artist, "title": doc.title, "pca_x": doc.pca_x, "pca_y": doc.pca_y, "_id": doc._id }
+				_r.push { "artist": doc.artist, "title": doc.title, "x": doc.x, "y": doc.y, "_id": doc._id }
 
 			res.json _r
 

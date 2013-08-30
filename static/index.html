@@ -135,13 +135,14 @@
 
 			update_graph = function( cb ){
 				// This function updates the main graph with the contents of songs.
-				_points = [ ]
-				for( var i=0; i<songs.length; i++ ){
-					_points.push( { "x": songs[i].pca_x, "y": songs[i].pca_y } );
-				}
-
-				main_graph.options.data = [ { type: "scatter", dataPoints: _points } ];
-				main_graph.render();
+				main_graph.options.data = [ {	type: "scatter",
+								markerSize: 15,
+								dataPoints: songs,
+								toolTipContent: "{title}<br />{artist}",
+								click: function( e ){
+									console.log( "Click on " + JSON.stringify( e.dataPoint ) );
+								} } ];
+				main_graph.render( );
 				return cb( null );
 			}
 
