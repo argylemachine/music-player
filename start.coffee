@@ -195,6 +195,8 @@ start_webserver = ( cb ) ->
 
 			res.json _r
 
+	app.get "/song/:id", ( req, res ) ->
+		res.sendfile req.doc.path
 			
 	app.get "/", ( req, res ) ->
 		res.redirect "/index.html"

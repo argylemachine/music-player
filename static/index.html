@@ -140,7 +140,7 @@
 								dataPoints: songs,
 								toolTipContent: "{title}<br />{artist}",
 								click: function( e ){
-									$("#player").html("<audio controls='controls' autoplay='autoplay'><source='/song/" + e.dataPoint._id + "' type='audio/mpeg' /></audio>" );
+									$("#player").html("<audio controls='controls' autoplay='autoplay'><source src='/song/" + e.dataPoint._id + "' type='audio/mpeg' /></audio>" );
 								} } ];
 				main_graph.render( );
 				return cb( null );
