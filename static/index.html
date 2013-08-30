@@ -19,7 +19,8 @@
 		<script type="text/javascript">
 		$(document).ready( function( ){
 
-			main_graph = { }
+			main_graph	= { }
+			songs		= { }
 
 			// Hide all the items that should be hidden in the start.
 			$(".hide").hide( );
@@ -30,6 +31,9 @@
 					window["show_"+_name]( );
 				} );
 			} );
+
+			// Enumerate the available options here.. somewhat modularized for other systems in the future.
+			options = [ "liveness", "tempo", "speechiness", "acousticness", "duration", "mode", "key", "energy", "time_signature", "duration", "loudness", "valence",  "danceability" ];
 
 			show_loading = function( cb ){
 				// Show the loading dialog and progress bar..
@@ -57,14 +61,34 @@
 			}
 			
 			setup_options = function( cb ){
+
+				// Iterate through all the options and fill in the div..
+				$("#options").append( "<table id='options_table'>" );
+				for( var i=0; i<options.length; i++ ){
+					option = options[i];
+
+					$("#options_table").append( "<tr><td><input checked='checked' type='checkbox' name='" + option +"'></td><td>" + option + "</td></tr>" );
+				}
+				$("#options").append("</table>");
+				$("#options").append( "<p><input type='submit' id='update_graph_button' value='Update Graph' /></p>" );
+
+				$("#update_graph_button").button( ).click( function( event ){
+					// Straight forward logic.. update!
+					async.series( [ show_loading, clear_songs, load_songs, hide_loading ], function( err, res ){
+						
+					} );
+				} );
+				
+
+				// Setup the options dialog.
 				$("#options").dialog( { modal: false,
 							title: "Options",
 							draggable: true,
 							resizable: true,
+							autoOpen: false,
 							minWidth: 300,
 							minHeight: 500 } );
 
-				$("#options").show( );
 				return cb( null );
 			}
 
@@ -74,13 +98,28 @@
 				return cb( null );
 			}
 
+			selected_options = function( ){
+				// This function returns a list of selected options.
+				_r = [ ];
+				boxes = $("#options_table :checkbox");
+				for( var i=0; i<boxes.length; i++ ){
+					box = $(boxes[i]);
+					if( box.prop("checked") ){
+						_r.push( box.attr( "name" ) );
+					}
+				}
+				return _r;
+			}
+
 			load_songs = function( cb ){
-				$.ajax( "/songs",{	"complete": function( data ){
-								console.log( "I have data " + JSON.stringify( data ) );
+				_data		= { }
+				_data['pca']	= selected_options( );
+				$.ajax( "/pca/basic", { "data": _data,
+							"complete": function( res ){
+								songs = res.responseJSON;
 								return cb( null );
 							},
 							"error": function( err ){
-								console.log( "Got error of " + err );
 								return cb( err );
 							} } );
 			}
@@ -99,23 +138,10 @@
 			<div class="detail_message"></div>
 		</div>
 		<div id="options" class="hide">
-			liveness
-			tempo
-			speechiness
-			acousticness
-			duration
-			mode
-			key
-			energy
-			time_signature
-			duration
-			loudness
-			valence
-			danceability
 		</div>
 		<div id="menu" class="hide">
 			<li><a href='#' onclick="$('#options').dialog('open');">Options</a></li>
-			<li><a href='#'>What?</a></li>
+			<li><a href='#'>About</a></li>
 		</div>
 		<div id="main_graph"></div>
 	</body>

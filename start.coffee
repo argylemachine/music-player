@@ -149,7 +149,8 @@ start_webserver = ( cb ) ->
 
 			res.json (doc.value for doc in docs)
 
-	app.get "/songs/pca", ( req, res ) ->
+	app.get "/pca/basic", ( req, res ) ->
+		# This returns a json list of objects that include the title, artist, and pca_x and pca_y.
 
 		# Setup attributes to pca.. if we don't get anything error out.
 		attrs = req.query.pca
@@ -164,18 +165,29 @@ start_webserver = ( cb ) ->
 			if err
 				return _error_out res, err
 
-			# Compute the PCA for attrs and docs..
-
-			#TODO
-
+			# Sanity check on each doc. Make sure it has the attributes requested..
 			_r = [ ]
 			for doc in (doc.value for doc in docs)
-				# Just placeholder.. random between 1 and 100.
+				skip = false
+				for attr in attrs
+					if not doc[attr]?
+						skip = true
+						break
+
+				if skip
+					continue
+
+				# At this point we know that doc is valid..
+
+				# Just a placeholder to compute stuff here..
 				doc.pca_x = Math.floor (Math.random( )*100) + 1
 				doc.pca_y = Math.floor (Math.random( )*100) + 1
-				_r.push doc
+
+				# Note that we don't shove the entire doc back..
+				_r.push { "artist": doc.artist, "title": doc.title, "pca_x": doc.pca_x, "pca_y": doc.pca_y }
 
 			res.json _r
+
 			
 	app.get "/", ( req, res ) ->
 		res.redirect "/index.html"
