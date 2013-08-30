@@ -74,7 +74,7 @@
 
 				$("#update_graph_button").button( ).click( function( event ){
 					// Straight forward logic.. update!
-					async.series( [ show_loading, clear_songs, load_songs, hide_loading ], function( err, res ){
+					async.series( [ show_loading, clear_songs, load_songs, update_graph, hide_loading ], function( err, res ){
 						
 					} );
 				} );
@@ -111,7 +111,16 @@
 				return _r;
 			}
 
+			clear_songs = function( cb ){
+				// Just a handy function that clears the songs we know about.
+				songs = { }
+				return cb( null );
+			}
+
 			load_songs = function( cb ){
+				// This function queries for the basic information.. it uses
+				// selected_options and sets the value of the global songs object.
+
 				_data		= { }
 				_data['pca']	= selected_options( );
 				$.ajax( "/pca/basic", { "data": _data,
@@ -124,7 +133,19 @@
 							} } );
 			}
 
-			async.series( [ show_loading, setup_canvas, setup_options, setup_menu, load_songs, hide_loading ], function( err, res ){
+			update_graph = function( cb ){
+				// This function updates the main graph with the contents of songs.
+				_points = [ ]
+				for( var i=0; i<songs.length; i++ ){
+					_points.push( { "x": songs[i].pca_x, "y": songs[i].pca_y } );
+				}
+
+				main_graph.options.data = [ { type: "scatter", dataPoints: _points } ];
+				main_graph.render();
+				return cb( null );
+			}
+
+			async.series( [ show_loading, setup_canvas, setup_options, setup_menu, load_songs, update_graph, hide_loading ], function( err, res ){
 				
 			} );
 			

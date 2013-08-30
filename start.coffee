@@ -184,7 +184,7 @@ start_webserver = ( cb ) ->
 				doc.pca_y = Math.floor (Math.random( )*100) + 1
 
 				# Note that we don't shove the entire doc back..
-				_r.push { "artist": doc.artist, "title": doc.title, "pca_x": doc.pca_x, "pca_y": doc.pca_y }
+				_r.push { "artist": doc.artist, "title": doc.title, "pca_x": doc.pca_x, "pca_y": doc.pca_y, "_id": doc._id }
 
 			res.json _r
 
