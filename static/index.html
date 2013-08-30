@@ -140,7 +140,7 @@
 								dataPoints: songs,
 								toolTipContent: "{title}<br />{artist}",
 								click: function( e ){
-									console.log( "Click on " + JSON.stringify( e.dataPoint ) );
+									$("#player").html("<audio controls='controls' autoplay='autoplay'><source='/song/" + e.dataPoint._id + "' type='audio/mpeg' /></audio>" );
 								} } ];
 				main_graph.render( );
 				return cb( null );
@@ -166,5 +166,6 @@
 			<li><a href='#'>About</a></li>
 		</div>
 		<div id="main_graph"></div>
+		<div id="player"></div>
 	</body>
 </html>

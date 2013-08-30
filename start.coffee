@@ -70,7 +70,8 @@ update_database = ( cb ) ->
 					return cb null
 				
 				_doc = file['info']['id3']
-				_doc.type = "song"
+				_doc.type	= "song"
+				_doc.path	= file['path']
 
 				# Query echonest and try to find that song..
 				runtime['echonest'].song.search { "title": _doc['title'], "artist": _doc['artist'] }, ( err, res ) ->
@@ -141,6 +142,12 @@ start_webserver = ( cb ) ->
 	_error_out = ( res, err ) ->
 		res.json { "error": err }
 
+	app.param "id", ( req, res, cb, id ) ->
+		runtime['db'].get id, ( err, doc ) ->
+			if err
+				return cb "not_found"
+			req.doc = doc
+			cb null
 
 	app.get "/songs", ( req, res ) ->
 		runtime['db'].view "songs/by-artist-and-title", ( err, docs ) ->
