@@ -172,17 +172,41 @@ start_webserver = ( cb ) ->
 			if err
 				return _error_out res, err
 
-			# Sanity check on each doc. Make sure it has the attributes requested..
-			_r = [ ]
+			# Iterate over the documents to find valid ones.
+			valid_docs = [ ]
 			for doc in (doc.value for doc in docs)
+				# Sanity check on each doc. Make sure it has the attributes requested..
 				skip = false
 				for attr in attrs
 					if not doc[attr]?
 						skip = true
 						break
-
 				if skip
 					continue
+
+				valid_docs.push doc
+
+			# For each feature that we're filtering by, determine the mean and standard deviation.
+			means			= [ ]
+			standard_deviations	= [ ]
+
+			for attr in attrs
+
+				# Iterate over the docs grabbing the particular feature.
+				max	= Number.MIN_NUMBER
+				min	= Number.MAX_NUMBER
+				sum	= 0
+				for doc in valid_docs
+					if doc[attr] > max
+						max = doc[attr]
+					if doc[attr] < min
+						min = doc[attr]
+
+					sum += doc[attr]
+
+				# At this point we have the max, min, sum, and number of elements for the given feature 'attr'.
+				
+			
 
 				# At this point we know that doc is valid..
 
@@ -191,9 +215,9 @@ start_webserver = ( cb ) ->
 				doc.y = Math.floor (Math.random( )*100) + 1
 
 				# Note that we don't shove the entire doc back..
-				_r.push { "artist": doc.artist, "title": doc.title, "x": doc.x, "y": doc.y, "_id": doc._id }
+				_return.push { "artist": doc.artist, "title": doc.title, "x": doc.x, "y": doc.y, "_id": doc._id }
 
-			res.json _r
+			res.json _return
 
 	app.get "/song/:id", ( req, res ) ->
 		res.sendfile req.doc.path
