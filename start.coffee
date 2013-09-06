@@ -231,7 +231,6 @@ start_webserver = ( cb ) ->
 
 
 			_return = [ ]
-			i = 0
 			for doc in valid_docs
 				doc.x = k.Z.elements[i][0]
 				doc.y = k.Z.elements[i][1]
