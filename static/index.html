@@ -27,15 +27,10 @@
 			// Hide all the items that should be hidden in the start.
 			$(".hide").hide( );
 
-			$("#menu").children( "a" ).each( function( a ){
-				_name = $(a).html();
-				$(a).click( function( ){
-					window["show_"+_name]( );
-				} );
-			} );
-
 			// Enumerate the available options here.. somewhat modularized for other systems in the future.
-			options = [ "liveness", "tempo", "speechiness", "acousticness", "duration", "mode", "key", "energy", "time_signature", "duration", "loudness", "valence",  "danceability" ];
+			options = [ "duration", "tempo", "liveness", "speechiness", "acousticness", "mode", "key", "energy", "time_signature", "loudness", "valence",  "danceability" ];
+
+			$("#about").dialog( { title: "About.", draggable: false, resizable: false, minWidth: 400, minHeight: 200, autoOpen: false } );
 
 			show_loading = function( cb ){
 				// Show the loading dialog and progress bar..
@@ -68,7 +63,6 @@
 				$("#options").append( "<table id='options_table'>" );
 				for( var i=0; i<options.length; i++ ){
 					option = options[i];
-
 					$("#options_table").append( "<tr><td><input checked='checked' type='checkbox' name='" + option +"'></td><td>" + option + "</td></tr>" );
 				}
 				$("#options").append("</table>");
@@ -140,7 +134,7 @@
 				main_graph.options.data = [ {	type: "scatter",
 								markerSize: 15,
 								dataPoints: songs,
-								toolTipContent: "{title}<br />{artist}",
+								toolTipContent: "{title}<br />Artist: {artist}",
 								click: function( e ){
 									$("#player").jPlayer( {
 										ready: function( ){
@@ -174,11 +168,14 @@
 			<p><div id="progressbar"></div></p>
 			<div class="detail_message"></div>
 		</div>
-		<div id="options" class="hide">
+		<div id="options" class="hide"></div>
+		<div id="about" class="hide">
+			<p>This is <a href='https://github.com/argylemachine/music-player'>music-player</a>. It is released open source under the <a href='https://raw.github.com/argylemachine/music-player/develop/LICENSE'>MIT</a> license.</p>
+			<p>Original idea and inspiration came from <a href='http://thesis.flyingpudding.com/'>Music Box</a> by <a href='http://flyingpudding.com/'>Anita Shen Lillie</a>.</p>
 		</div>
 		<div id="menu" class="hide">
 			<li><a href='#' onclick="$('#options').dialog('open');">Options</a></li>
-			<li><a href='#'>About</a></li>
+			<li><a href='#' onclick="$('#about').dialog('open');">About</a></li>
 		</div>
 		<div id="main_graph"></div>
 		<div id="player" class="jp-player"></div>

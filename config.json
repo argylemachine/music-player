@@ -1,7 +1,7 @@
 {
 	"port": 1338,
 	"directories": [ "/home/robert/Music" ],
-	"echonest_api_key": "WUS5KPNZSKFC8UAIA",
+	"echonest_api_key": "",
 	"database_url": "http://localhost",
 	"database_port": 5984,
 	"database_db": "music-player"

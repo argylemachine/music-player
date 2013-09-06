@@ -8,6 +8,7 @@ cradle		= require "cradle"
 echonest	= require "echonest"
 http		= require "http"
 express		= require "express"
+sylvester	= require "sylvester"
 
 config	= { }
 runtime	= { }
@@ -193,29 +194,52 @@ start_webserver = ( cb ) ->
 			for attr in attrs
 
 				# Iterate over the docs grabbing the particular feature.
-				max	= Number.MIN_NUMBER
-				min	= Number.MAX_NUMBER
-				sum	= 0
+				sum			= 0
 				for doc in valid_docs
-					if doc[attr] > max
-						max = doc[attr]
-					if doc[attr] < min
-						min = doc[attr]
-
 					sum += doc[attr]
 
-				# At this point we have the max, min, sum, and number of elements for the given feature 'attr'.
+				# Calculate the mean..
+				mean = ( sum / valid_docs.length )
+				means.push mean
 				
-			
+				# Calculate the squared diffs ( required for standard deviation. )
+				squared_diff_sum = 0
+				for doc in valid_docs
+					squared_diff_sum += Math.pow( ( doc[attr] - mean ), 2 )
 
-				# At this point we know that doc is valid..
+				standard_deviations.push Math.sqrt( squared_diff_sum / valid_docs.length )
+				
 
-				# Just a placeholder to compute stuff here..
-				doc.x = Math.floor (Math.random( )*100) + 1
-				doc.y = Math.floor (Math.random( )*100) + 1
+			# Normalize the documents..
+			for doc in valid_docs
+				i = 0
+				for attr in attrs
+					doc[attr] = doc[attr] - means[i]
+					doc[attr] = doc[attr] / standard_deviations[i]
+					i++
+
+			# Generate a matrix of all the values we're going to svd..
+			matrix = [ ]
+			for doc in valid_docs
+				_i = [ ]
+				for attr in attrs
+					_i.push doc[attr]
+				matrix.push _i
+
+			svd	= sylvester.Matrix.create matrix
+			k	= svd.pcaProject 2
+
+
+			_return = [ ]
+			i = 0
+			for doc in valid_docs
+				doc.x = k.Z.elements[i][0]
+				doc.y = k.Z.elements[i][1]
 
 				# Note that we don't shove the entire doc back..
 				_return.push { "artist": doc.artist, "title": doc.title, "x": doc.x, "y": doc.y, "_id": doc._id }
+	
+				i++
 
 			res.json _return
 
