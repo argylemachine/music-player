@@ -178,11 +178,9 @@ start_webserver = ( cb ) ->
 
 			valid_docs = [ ]
 
-			# Iterate over all the documents we got back.
+			# Iterate over all the documents we got back. Ensure the attributes
+			# that we're looking for exist. Populate the valid_docs array.
 			for doc in (doc.value for doc in docs)
-				# Ensure the attributes
-				# that are requested exist in the document.
-
 				# Sanity check on each doc. Make sure it has the attributes requested..
 				skip = false
 				for attr in attrs
@@ -196,75 +194,47 @@ start_webserver = ( cb ) ->
 
 				valid_docs.push doc
 
-			# For each feature that we're filtering by
-			# determine the mean and standard deviation.
-			# Note that we use arrays that correspond to
-			# the index of attrs.
-			means			= [ ]
-			standard_deviations	= [ ]
-
+			# Go through each attribute that was specified.
 			for attr in attrs
 
-				# Get the sum of the attribute for all the docs.
+				# Calculate the mean of the attribute for all docs in valid_docs.
 				sum = 0
 				for doc in valid_docs
 					sum += doc[attr]
-
-				# Calculate the mean using the number of documents
-				# and the sum.
 				mean = ( sum / valid_docs.length )
-				means.push mean
 				
-				# To calculate the standard deviation we subtract the mean
-				# ( calculated above ) from the value of the attribute, and raise
-				# it to the power of 2. This gets summed for all documents.
-				# The square root is then taken of the summation divided by the number
-				# of documents.
-
+				# Calculate the standard deviation.
 				squared_diff_sum = 0
 				for doc in valid_docs
 					squared_diff_sum += Math.pow( ( doc[attr] - mean ), 2 )
+				standard_deviation = Math.sqrt( squared_diff_sum / valid_docs.length )
 
-				standard_deviations.push Math.sqrt( squared_diff_sum / valid_docs.length )
-				
+				# Now that we have the mean and standard deviation for the attribute, run through 
+				# each doc in valid_docs and compute the normalized attribute.
+				for doc in valid_docs
+					doc["normalized_" + attr] = doc[attr] - mean
+					doc["normalized_" + attr] = doc["normalized_" + attr] / standard_deviation
 
-			# We've now got the means and standard deviations for
-			# each attribute. Normalize the values.
+			# We've normalized the data at this point, so each doc contains ["normalized_"+attr] for
+			# each attr in attrs. At this point, generate a quick matrix using arrays so that we
+			# can use the sylvester module to compute the PCA.
 
-			for doc in valid_docs
-				i = 0
-				for attr in attrs
-					doc[attr] = doc[attr] - means[i]
-					doc[attr] = doc[attr] / standard_deviations[i]
-					i++
-
-			# Generate a matrix of all the values we're going to svd..
 			matrix = [ ]
 			for doc in valid_docs
 				_i = [ ]
 				for attr in attrs
-					_i.push doc[attr]
+					_i.push doc["normalized_"+attr]
 				matrix.push _i
 
+			# Project into 2 dimensions..
 			svd	= sylvester.Matrix.create matrix
 			k	= svd.pcaProject 2
 
-
-			_return = [ ]
-			for doc in valid_docs
-				if k.Z.elements[i]?
-					doc.x = k.Z.elements[i][0]
-					doc.y = k.Z.elements[i][1]
-				else
-					doc.x = 0
-					doc.y = 0
-
-				# Note that we don't shove the entire doc back..
-				_return.push { "artist": doc.artist, "title": doc.title, "x": doc.x, "y": doc.y, "_id": doc._id }
-	
-				i++
-
-			res.json _return
+			for i in [0..valid_docs.length-1]
+				valid_docs[i].x = k.Z.elements[i][0]
+				valid_docs[i].y = k.Z.elements[i][1]
+			
+			res.json valid_docs
 
 	app.get "/song/:id", ( req, res ) ->
 		res.sendfile req.doc.path
