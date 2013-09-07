@@ -51,7 +51,7 @@
 			}
 
 			setup_canvas = function( cb ){
-				main_graph = new CanvasJS.Chart( "main_graph", {	"title": { "text": "Main Graph" },
+				main_graph = new CanvasJS.Chart( "main_graph", {	"title": { "text": "Library Visualization" },
 											"data": { },
 											"toolTip": {
 												"content": function( e ){
@@ -97,10 +97,10 @@
 				$("#options").dialog( { modal: false,
 							title: "Options",
 							draggable: true,
-							resizable: true,
+							resizable: false,
 							autoOpen: false,
-							minWidth: 300,
-							minHeight: 500 } );
+							height: 450,
+							width: 190 } );
 
 				return cb( null );
 			}
