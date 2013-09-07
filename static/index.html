@@ -52,7 +52,24 @@
 
 			setup_canvas = function( cb ){
 				main_graph = new CanvasJS.Chart( "main_graph", {	"title": { "text": "Main Graph" },
-											"data": { } } );
+											"data": { },
+											"toolTip": {
+												"content": function( e ){
+													// Rather than referencing this all the time..
+													_dp = e.entries[0].dataPoint;
+
+													// Define the return string that we'll concat to.
+													_return = "";
+
+													_selected_options = selected_options( );
+													// Iterate over the tooltip_options..
+													for( var i in _selected_options ){
+														tool_tip = _selected_options[i];
+														_return += tool_tip + ": " + _dp[tool_tip] + "<br />";
+													}
+													return _return;
+												}
+											} } );
 				main_graph.render( );
 				return cb( null );
 			}
@@ -134,7 +151,6 @@
 				main_graph.options.data = [ {	type: "scatter",
 								markerSize: 15,
 								dataPoints: songs,
-								toolTipContent: "{title}<br />Artist: {artist}",
 								click: function( e ){
 									$("#player").jPlayer( {
 										ready: function( ){
@@ -147,10 +163,6 @@
 									} );
 								} } ];
 
-								/*
-									$("#player").html("<audio controls='controls' autoplay='autoplay'><source src='/song/" + e.dataPoint._id + "' type='audio/mpeg' /></audio>" );
-								} } ];
-								*/
 				main_graph.render( );
 				return cb( null );
 			}
