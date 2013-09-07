@@ -8,12 +8,23 @@
 		<link rel="stylesheet" type="text/css" href="lib/jquery-ui.min.css" />
 		<style type="text/css">
 		#main_graph { 
-			width: 85%;
+			width: 84%;
 			height: 85%;
+			left: 0px;
+			bottom: 0px;
+			position: fixed;
 		}
-		#menu {
+		#right {
 			float: right;
-			width: 10%;
+			width: 15%;
+		}
+		#top{
+			float: left;
+			width: 84%;
+			height: 14%;
+			position: fixed;
+			left: 10px;
+			top: 10px;
 		}
 		</style>
 		<script type="text/javascript">
@@ -67,7 +78,9 @@
 													}
 													return _return;
 												}
-											} } );
+											},
+											"axisY": { "gridThickness": -1, "labelFontSize": -1 },
+											"axisX": { "gridThickness": -1, "labelFontSize": -1 } } );
 				main_graph.render( );
 				return cb( null );
 			}
@@ -90,22 +103,6 @@
 					} );
 				} );
 				
-
-				// Setup the options dialog.
-				$("#options").dialog( { modal: false,
-							title: "Options",
-							draggable: true,
-							resizable: false,
-							autoOpen: false,
-							height: 450,
-							width: 190 } );
-
-				return cb( null );
-			}
-
-			setup_menu = function( cb ){
-				$("#menu").menu( );
-				$("#menu").show( );
 				return cb( null );
 			}
 
@@ -173,7 +170,7 @@
 				return cb( null );
 			}
 
-			async.series( [ show_loading, setup_canvas, setup_options, setup_menu, load_songs, update_graph, hide_loading ], function( err, res ){
+			async.series( [ show_loading, setup_canvas, setup_options, load_songs, update_graph, hide_loading ], function( err, res ){
 				
 			} );
 			
@@ -181,21 +178,28 @@
 		</script>
 	</head>
 	<body>
+		<div id="top">
+			Some top stuff.
+		</div>
+		<div id="about" class="hide">
+			<p>This is <a href='https://github.com/argylemachine/music-player'>music-player</a>. It is released open source under the <a href='https://raw.github.com/argylemachine/music-player/develop/LICENSE'>MIT</a> license.</p>
+			<p>Original idea and inspiration came from <a href='http://thesis.flyingpudding.com/'>Music Box</a> by <a href='http://flyingpudding.com/'>Anita Shen Lillie</a>.</p>
+		</div>
+		<div id="right">
+			<div id="options"><h3>Attributes</h3></div>
+			<div id="menu">
+				<h3>Links</h3>
+				<ul>
+					<li><a href='#' onclick="$('#about').dialog('open');">About</a></li>
+					<li><a href='https://github.com/argylemachine/music-player'>Source Code</a></li>
+				</ul>
+			</div>
+		</div>
+		<div id="main_graph"></div>
 		<div id="loading">
 			<div class="message">The hamsters are running. Hold on!</div>
 			<p><div id="progressbar"></div></p>
 			<div class="detail_message"></div>
 		</div>
-		<div id="options" class="hide"></div>
-		<div id="about" class="hide">
-			<p>This is <a href='https://github.com/argylemachine/music-player'>music-player</a>. It is released open source under the <a href='https://raw.github.com/argylemachine/music-player/develop/LICENSE'>MIT</a> license.</p>
-			<p>Original idea and inspiration came from <a href='http://thesis.flyingpudding.com/'>Music Box</a> by <a href='http://flyingpudding.com/'>Anita Shen Lillie</a>.</p>
-		</div>
-		<div id="menu" class="hide">
-			<li><a href='#' onclick="$('#options').dialog('open');">Options</a></li>
-			<li><a href='#' onclick="$('#about').dialog('open');">About</a></li>
-		</div>
-		<div id="main_graph"></div>
-		<div id="player"></div>
 	</body>
 </html>
