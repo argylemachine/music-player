@@ -158,17 +158,18 @@ start_webserver = ( cb ) ->
 			res.json (doc.value for doc in docs)
 
 	app.get "/pca/basic", ( req, res ) ->
-		# This returns a json list of objects that include the title, artist, and pca_x and pca_y.
+		# This returns a list of objects.
+		# The objects contain track information, such as title, artist, as well
+		# as x and y which are computed using PCA on the features that are specified.
 
-		# Setup attributes to pca.. if we don't get anything error out.
+		# The 'pca' keyword is used to specify what attributes we want to perform the PCA on.
 		attrs = req.query.pca
 
+		# Force at least a single attribute to be specified.
 		if not attrs
 			return _error_out res, "No pca specified."
-
-		if typeof attrs is "string"
-			return _error_out res, "Multiple pca values need to be specified."
 		
+		# This just gets a list of documents from the CouchDB server. The view isn't important at this point.
 		runtime['db'].view "songs/by-artist-and-title", ( err, docs ) ->
 			if err
 				return _error_out res, err
@@ -232,8 +233,12 @@ start_webserver = ( cb ) ->
 
 			_return = [ ]
 			for doc in valid_docs
-				doc.x = k.Z.elements[i][0]
-				doc.y = k.Z.elements[i][1]
+				if k.Z.elements[i]?
+					doc.x = k.Z.elements[i][0]
+					doc.y = k.Z.elements[i][1]
+				else
+					doc.x = 0
+					doc.y = 0
 
 				# Note that we don't shove the entire doc back..
 				_return.push { "artist": doc.artist, "title": doc.title, "x": doc.x, "y": doc.y, "_id": doc._id }
