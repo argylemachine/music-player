@@ -9,7 +9,7 @@ Installation
 ============
 ### Requirements
  * [CouchDB](http://couchdb.apache.org/)
- * [NodeJS](http://nodejs.org/)
+ * [NodeJS](http://nodejs.org/) >= 0.10.7
 
 ### Quick Overview
  * Install CouchDB
