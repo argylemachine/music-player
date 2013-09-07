@@ -157,6 +157,13 @@ start_webserver = ( cb ) ->
 
 			res.json (doc.value for doc in docs)
 
+	app.get "/artists", ( req, res ) ->
+		runtime['db'].view "songs/null-by-artist", { group: true, reduce: true }, ( err, docs ) ->
+			if err
+				return _error_out res, err
+
+			res.json ( doc.key for doc in docs )
+
 	app.get "/pca/basic", ( req, res ) ->
 		# This returns a list of objects.
 		# The objects contain track information, such as title, artist, as well
@@ -297,10 +304,12 @@ async.series [ ( cb ) ->
 							if doc.type is "song" and doc.artist and doc.title
 								emit [ doc.artist, doc.title ], doc
 					},
-					"null-by-artist-and-title": {
+					"null-by-artist": {
 						"map": ( doc ) ->
-							if doc.type is "song" and doc.artist and doc.title
-								emit [ doc.artist, doc.title ], null
+							if doc.type is "song" and doc.artist
+								emit doc.artist, null
+
+						,"reduce": "_count"
 					}
 				}, ( err, res ) ->
 					if err

@@ -59,7 +59,7 @@
 													_dp = e.entries[0].dataPoint;
 
 													// Define the return string that we'll concat to.
-													_return = "Title: " + _dp["title"] + "<br />Artist: " + _dp["artist"] + "<br />";
+													_return = "Title: <b>" + _dp["title"] + "</b><br />Artist: <b>" + _dp["artist"] + "</b><br />";
 
 													_selected_options = selected_options( );
 													// Iterate over the tooltip_options..
@@ -148,21 +148,35 @@
 
 			update_graph = function( cb ){
 				// This function updates the main graph with the contents of songs.
-				main_graph.options.data = [ {	type: "scatter",
-								markerSize: 15,
-								dataPoints: songs,
-								click: function( e ){
-									$("#player").jPlayer( {
-										ready: function( ){
-											$(this).jPlayer( "setMedia", {
-												mp3: "/song/" + e.dataPoint._id
-											} );
-										},
-										swfPath: "/lib",
-										supplied: "mp3"
-									} );
-								} } ];
 
+				// Split songs up by artist..
+				data_by_artists = { };
+				for( var i in songs ){
+					var song		= songs[i];
+					if( Object.keys( data_by_artists ).indexOf( song.artist ) < 0 ){
+						data_by_artists[song.artist] = [ ];
+					}
+					
+					data_by_artists[song.artist].push( song );
+				}
+
+				_data = [ ];
+				for( var artist in data_by_artists ){
+					_data.push( {	type: "scatter",
+						markerSize: 15,
+						dataPoints: data_by_artists[artist],
+						click: function( e ){
+							$("#player").jPlayer( {
+								ready: function( ){
+									$(this).jPlayer( "setMedia", { mp3: "/song/" + e.dataPoint._id } );
+								},
+								swfPath: "/lib",
+								supplied: "mp3"
+							} );
+						} } );
+				}
+
+				main_graph.options.data = _data
 				main_graph.render( );
 				return cb( null );
 			}
