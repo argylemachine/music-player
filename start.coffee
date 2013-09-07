@@ -171,39 +171,56 @@ start_webserver = ( cb ) ->
 		
 		# This just gets a list of documents from the CouchDB server. The view isn't important at this point.
 		runtime['db'].view "songs/by-artist-and-title", ( err, docs ) ->
+
+			# Error out if we get an error back from CouchDB.
 			if err
 				return _error_out res, err
 
-			# Iterate over the documents to find valid ones.
 			valid_docs = [ ]
+
+			# Iterate over all the documents we got back.
 			for doc in (doc.value for doc in docs)
+				# Ensure the attributes
+				# that are requested exist in the document.
+
 				# Sanity check on each doc. Make sure it has the attributes requested..
 				skip = false
 				for attr in attrs
 					if not doc[attr]?
 						skip = true
 						break
+
+				# If we should skip this document, continue with the next doc.
 				if skip
 					continue
 
 				valid_docs.push doc
 
-			# For each feature that we're filtering by, determine the mean and standard deviation.
+			# For each feature that we're filtering by
+			# determine the mean and standard deviation.
+			# Note that we use arrays that correspond to
+			# the index of attrs.
 			means			= [ ]
 			standard_deviations	= [ ]
 
 			for attr in attrs
 
-				# Iterate over the docs grabbing the particular feature.
-				sum			= 0
+				# Get the sum of the attribute for all the docs.
+				sum = 0
 				for doc in valid_docs
 					sum += doc[attr]
 
-				# Calculate the mean..
+				# Calculate the mean using the number of documents
+				# and the sum.
 				mean = ( sum / valid_docs.length )
 				means.push mean
 				
-				# Calculate the squared diffs ( required for standard deviation. )
+				# To calculate the standard deviation we subtract the mean
+				# ( calculated above ) from the value of the attribute, and raise
+				# it to the power of 2. This gets summed for all documents.
+				# The square root is then taken of the summation divided by the number
+				# of documents.
+
 				squared_diff_sum = 0
 				for doc in valid_docs
 					squared_diff_sum += Math.pow( ( doc[attr] - mean ), 2 )
@@ -211,7 +228,9 @@ start_webserver = ( cb ) ->
 				standard_deviations.push Math.sqrt( squared_diff_sum / valid_docs.length )
 				
 
-			# Normalize the documents..
+			# We've now got the means and standard deviations for
+			# each attribute. Normalize the values.
+
 			for doc in valid_docs
 				i = 0
 				for attr in attrs
