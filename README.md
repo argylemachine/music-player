@@ -1,6 +1,6 @@
 About
 =====
-[music-player](https://github.com/argylemachine/music-player) is a web based music player and visualization system. Instead of viewing a music library via a traditonal grid, a scatter plot graph is used. The position of each song is computed by using a [Principle Components Analysis](http://en.wikipedia.org/wiki/Principle_components_analysis); This means that songs that sound similar are grouped togeather.
+[music-player](https://github.com/argylemachine/music-player) is a web based music player and visualization system. Instead of viewing a music library via a traditonal grid, a scatter plot graph is used. The position of each song is computed by using a [Principle Components Analysis](http://en.wikipedia.org/wiki/Principle_components_analysis). Basically the songs that have similar values for the selected properties are closer together.
 
 A screenshot of the current system is below.
 ![Current Screenshot](https://raw.github.com/argylemachine/music-player/develop/screenshots/current.png "Current Screenshot")
@@ -15,10 +15,15 @@ Installation
  * Install CouchDB
  * Check out the development version of [music-player](https://github.com/argylemachine/music-player)
 
- `git clone https://github.com/argylemachine/music-player.git && cd music-player && git checkout develop`
+ ```
+ git clone https://github.com/argylemachine/music-player.git
+ cd music-player
+ git checkout develop
+ ```
 
- * Get an API key from echonest. [Register Here](https://developer.echonest.com/account/register).
- * Modify config.json
+
+ * Get an API key from echonest. [Register Here](https://developer.echonest.com/account/register). I highly suggest applying for an upgraded account.
+ * Modify config.json to suite.
  * Install required nodejs libraries. ( `npm install` ).
  * Run `start.coffee`.
 
