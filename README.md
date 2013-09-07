@@ -2,6 +2,8 @@ About
 =====
 music-player is a web based music player and visualization system.
 
+![Current Screenshot](https://github.com/argylemachine/music-box/raw/develop/screenshots/current.png "Current Screenshot")
+
 Installation
 ============
  * Install CouchDB
