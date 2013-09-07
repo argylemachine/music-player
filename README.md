@@ -2,7 +2,7 @@ About
 =====
 music-player is a web based music player and visualization system.
 
-![Current Screenshot](https://github.com/argylemachine/music-box/raw/develop/screenshots/current.png "Current Screenshot")
+![Current Screenshot](https://raw.github.com/argylemachine/music-player/develop/screenshots/current.png "Current Screenshot")
 
 Installation
 ============
