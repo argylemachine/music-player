@@ -3,11 +3,9 @@
 		<title>music-player!</title>
 		<script src="lib/jquery-2.0.3.min.js"></script>
 		<script src="lib/jquery-ui.min.js"></script>
-		<script src="lib/jquery.jplayer.min.js"></script>
 		<script src="lib/canvasjs.min.js"></script>
 		<script src="lib/async.js"></script>
 		<link rel="stylesheet" type="text/css" href="lib/jquery-ui.min.css" />
-		<link rel="stylesheet" type="text/css" href="lib/jplayer.blue.monday.css" />
 		<style type="text/css">
 		#main_graph { 
 			width: 85%;
@@ -166,13 +164,7 @@
 						markerSize: 15,
 						dataPoints: data_by_artists[artist],
 						click: function( e ){
-							$("#player").jPlayer( {
-								ready: function( ){
-									$(this).jPlayer( "setMedia", { mp3: "/song/" + e.dataPoint._id } );
-								},
-								swfPath: "/lib",
-								supplied: "mp3"
-							} );
+							$("#player").html( "Would play /song/" + e.dataPoint._id );
 						} } );
 				}
 
@@ -204,43 +196,6 @@
 			<li><a href='#' onclick="$('#about').dialog('open');">About</a></li>
 		</div>
 		<div id="main_graph"></div>
-		<div id="player" class="jp-player"></div>
-		<div id="jp_container" class="jp-audio">
-			<div class="jp-type-single">
-				<div class="jp-gui jp-interface">
-					<ul class="jp-controls">
-						<li><a href="javascript:;" class="jp-play" tabindex="1">play</a></li>
-						<li><a href="javascript:;" class="jp-pause" tabindex="1">pause</a></li>
-						<li><a href="javascript:;" class="jp-stop" tabindex="1">stop</a></li>
-						<li><a href="javascript:;" class="jp-mute" tabindex="1" title="mute">mute</a></li>
-						<li><a href="javascript:;" class="jp-unmute" tabindex="1" title="unmute">unmute</a></li>
-						<li><a href="javascript:;" class="jp-volume-max" tabindex="1" title="max volume">max volume</a></li>
-					</ul>
-					<div class="jp-progress">
-						<div class="jp-seek-bar">
-							<div class="jp-play-bar"></div>
-						</div>
-					</div>
-					<div class="jp-volume-bar">
-						<div class="jp-volume-bar-value"></div>
-					</div>
-					<div class="jp-time-holder">
-						<div class="jp-current-time"></div>
-						<div class="jp-duration"></div>
-						<ul class="jp toggles">
-							<li><a href="javascript:;" class="jp-repeat" tabindex="1" title="repeat">repeat</a></li>
-							<li><a href="javascript:;" class="jp-repeat-off" tabindex="1" title="repeat off">repeat off</a></li>
-						</ul>
-					</div>
-				</div>
-				<div class="jp-title">
-					<ul><li>Bubble</li></ul>
-				</div>
-				<div class="jp-no-solution">
-					<span>No compatible player</span>
-					There was no compatable player technology found. You should update your browser, or allow the plugin to run if you want to use this site.
-				</div>
-			</div>
-		</div>
+		<div id="player"></div>
 	</body>
 </html>
