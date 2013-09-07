@@ -1,21 +1,30 @@
 About
 =====
-music-player is a web based music player and visualization system.
+[music-player](https://github.com/argylemachine/music-player) is a web based music player and visualization system. Instead of viewing a music library via a traditonal grid, a scatter plot graph is used. The position of each song is computed by using a [Principle Components Analysis](http://en.wikipedia.org/wiki/Principle_components_analysis); This means that songs that sound similar are grouped togeather.
 
+A screenshot of the current system is below.
 ![Current Screenshot](https://raw.github.com/argylemachine/music-player/develop/screenshots/current.png "Current Screenshot")
 
 Installation
 ============
+### Requirements
+ * [CouchDB](http://couchdb.apache.org/)
+ * [NodeJS](http://nodejs.org/)
+
+### Quick Overview
  * Install CouchDB
+ * Check out the development version of [music-player](https://github.com/argylemachine/music-player)
+
+ `git clone https://github.com/argylemachine/music-player.git && cd music-player && git checkout develop`
+
+ * Get an API key from echonest. [Register Here](https://developer.echonest.com/account/register).
  * Modify config.json
- * Run `npm install`
- * Run start.coffee
+ * Install required nodejs libraries. ( `npm install` ).
+ * Run `start.coffee`.
 
 License
 =======
-The code in this project is under the MIT license, unless otherwise stated. See [LICENSE](https://raw.github.com/argylemachine/music-player/develop/LICENSE).
-
-Note that the data retrieved from [echonest](http://echonest.com/) may not be used commercially without prior approval.
+The code in this project is under the MIT license, unless otherwise stated. Note that the data retrieved from [echonest](http://echonest.com/) is bound by [its own license](http://developer.echonest.com/licensing.html).
 
 Credits
 =======
