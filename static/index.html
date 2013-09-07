@@ -94,15 +94,15 @@
 					$("#options_table").append( "<tr><td><input checked='checked' type='checkbox' name='" + option +"'></td><td>" + option + "</td></tr>" );
 				}
 				$("#options").append("</table>");
-				$("#options").append( "<p><input type='submit' id='update_graph_button' value='Update Graph' /></p>" );
 
-				$("#update_graph_button").button( ).click( function( event ){
-					// Straight forward logic.. update!
-					async.series( [ show_loading, clear_songs, load_songs, update_graph, hide_loading ], function( err, res ){
-						
+				$("#options_table :checkbox").each( function( i, chkbox ){
+					$(chkbox).change( function( e ){
+						async.series( [ show_loading, clear_songs, load_songs, update_graph, hide_loading ], function( err, res ){
+							
+						} );
 					} );
 				} );
-				
+
 				return cb( null );
 			}
 
