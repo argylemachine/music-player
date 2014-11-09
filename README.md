@@ -2,6 +2,8 @@ Note about new development
 ==========================
 As of November 2014 I'm starting to re-write this using [ember-cli](http://www.ember-cli.com/) and [PouchDB](http://pouchdb.com/). The system will be split into two parts, a server and a client.
 
+Please see the [0.1.0 release](https://github.com/argylemachine/music-player/releases/tag/0.1.0) for the old code.
+
 About
 =====
 [music-player](https://github.com/argylemachine/music-player) is a web based music player and visualization system. Instead of viewing a music library via a traditonal grid, a scatter plot graph is used. The position of each song is computed by using a [Principle Components Analysis](http://en.wikipedia.org/wiki/Principle_components_analysis). Basically the songs that have similar values for the selected properties are closer together.
