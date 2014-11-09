@@ -1,12 +1,40 @@
 {
-	"name": "music-player",
-	"description": "Music Player",
-	"version": "0.2.0",
-	"private": true,
-	"dependencies": {
-		"async": "0.9.0",
-		"ember-cli": "0.1.2",
-		"find": "0.1.7",
-		"express": "4.10.1"
-	}
+  "name": "ember-cli-echonest",
+  "version": "0.0.1",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "ember server",
+    "build": "ember build",
+    "test": "ember test",
+    "postinstall": "bower install"
+  },
+  "repository": "https://github.com/robwebdev/ember-cli-echonest",
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "author": "Rob Chandler",
+  "license": "MIT",
+  "devDependencies": {
+    "body-parser": "^1.2.0",
+    "broccoli-asset-rev": "0.3.0",
+    "broccoli-ember-hbs-template-compiler": "^1.6.1",
+    "broccoli-merge-trees": "^0.2.0",
+    "broccoli-static-compiler": "^0.2.1",
+    "ember-cli": "0.1.1",
+    "ember-cli-ic-ajax": "0.1.1",
+    "ember-cli-inject-live-reload": "^1.2.2",
+    "ember-cli-qunit": "0.1.0",
+    "ember-data": "1.0.0-beta.10",
+    "express": "^4.8.5",
+    "glob": "^4.0.5"
+  },
+  "keywords": [
+    "ember-addon"
+  ],
+  "ember-addon": {
+    "configPath": "tests/dummy/config"
+  }
 }
